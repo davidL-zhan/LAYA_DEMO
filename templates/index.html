@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="输入一道考试题和多个知识点，查看 Laya 给出的逐项匹配概率。"
+    />
+    <title>题目知识点匹配</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="题目知识点匹配首页">
+        <span class="brand-mark" aria-hidden="true">知</span>
+        <span>学习诊断</span>
+      </a>
+      <span class="local-note"><span class="status-dot"></span>本地运行</span>
+    </header>
+
+    <main class="page-shell">
+      <section class="page-intro" aria-labelledby="page-title">
+        <p class="section-index">考试题 · 知识点</p>
+        <h1 id="page-title">这道题用到了哪些知识点？</h1>
+        <p class="intro-copy">逐项判断，多个知识点可以同时匹配。</p>
+      </section>
+
+      <section class="workbench" aria-label="题目知识点匹配工作区">
+        <form id="matchingForm" class="input-panel" novalidate>
+          <div class="panel-heading">
+            <h2>输入题目</h2>
+            <span>每次分析均为临时输入</span>
+          </div>
+
+          <div class="field-group">
+            <label for="questionInput">考试题目内容</label>
+            <textarea
+              id="questionInput"
+              name="question"
+              rows="8"
+              placeholder="粘贴题干和小问，例如：已知函数 f(x)=x²-2x，求函数的最小值。"
+              required
+            ></textarea>
+            <div class="field-note">
+              <span>尽量保留完整题干</span>
+              <span id="questionCount">0 个字符</span>
+            </div>
+          </div>
+
+          <div class="field-group knowledge-field">
+            <label for="knowledgeInput">候选知识点</label>
+            <textarea
+              id="knowledgeInput"
+              name="knowledge_points"
+              rows="6"
+              placeholder="二次函数&#10;配方法&#10;导数"
+              required
+            ></textarea>
+            <p class="field-note">每行填写一个知识点；空行会自动忽略。</p>
+          </div>
+
+          <div class="threshold-control">
+            <div class="threshold-heading">
+              <label for="thresholdInput">匹配阈值</label>
+              <output id="thresholdValue" for="thresholdInput">60%</output>
+            </div>
+            <input
+              id="thresholdInput"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value="60"
+              aria-describedby="thresholdHelp"
+            />
+            <div class="range-labels" aria-hidden="true">
+              <span>0%</span>
+              <span id="thresholdHelp">达到阈值即标记为匹配</span>
+              <span>100%</span>
+            </div>
+          </div>
+
+          <button id="matchButton" class="primary-button" type="submit">
+            <span class="button-label">开始匹配</span>
+          </button>
+          <p id="errorMessage" class="error-message" role="alert" hidden></p>
+        </form>
+
+        <section class="results-panel" aria-labelledby="resultsTitle">
+          <div class="panel-heading results-heading">
+            <div>
+              <h2 id="resultsTitle">匹配结果</h2>
+              <p id="resultsSummary" class="results-summary" aria-live="polite">
+                等待题目分析
+              </p>
+            </div>
+            <span class="result-rule" aria-hidden="true">P(匹配)</span>
+          </div>
+
+          <div id="emptyState" class="empty-state">
+            <span class="empty-mark" aria-hidden="true">?</span>
+            <p>提交题目后，这里会逐项显示匹配概率。</p>
+          </div>
+
+          <ul id="resultsList" class="results-list" aria-live="polite" hidden></ul>
+
+          <details id="rawJsonDetails" class="raw-json" hidden>
+            <summary>Laya 原始结构化 JSON</summary>
+            <pre id="rawJsonOutput"></pre>
+          </details>
+        </section>
+      </section>
+
+      <footer class="page-footer">
+        <span>阈值只改变匹配标记，不会重新运行模型。</span>
+        <span>一道题 · 多个判断</span>
+      </footer>
+    </main>
+  </body>
+</html>
