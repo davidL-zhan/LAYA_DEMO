@@ -9,6 +9,10 @@ wheels/
 # Virtual environments
 .venv
 
+# Local environment settings
+.env
+.env.*
+!.env.example
 
 # Documentation
 docs/

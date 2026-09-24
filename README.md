@@ -15,18 +15,29 @@ uv run python main.py
 
 Windows PowerShell 7 和 macOS 终端使用相同的启动命令。默认由操作系统分配一个可用端口，启动日志会打印实际访问地址；在本机浏览器打开该地址即可。服务只监听本机回环地址，不对局域网开放。
 
-如果需要固定端口，可以在启动前设置 `LAYA_DEMO_PORT`。端口 `0` 表示自动分配，固定端口取值范围为 `1`–`65535`。
+首次使用时可从模板创建本地配置文件：
 
 ```powershell
 # Windows PowerShell 7
-$env:LAYA_DEMO_PORT = "6410"
-uv run python main.py
+Copy-Item .env.example .env
 ```
 
 ```shell
-# macOS
-LAYA_DEMO_PORT=6410 uv run python main.py
+# macOS / Linux
+cp .env.example .env
 ```
+
+然后按需编辑 `.env`。所有配置项都可省略，默认值如下：
+
+| 环境变量 | 默认值 | 说明 |
+| --- | --- | --- |
+| `LAYA_DEMO_HOST` | `127.0.0.1` | 服务监听地址；默认仅本机可访问。改为 `0.0.0.0` 会监听所有网卡，可能向局域网或其他网络暴露服务。 |
+| `LAYA_DEMO_PORT` | `0` | `0` 由操作系统分配可用端口；也可指定 `1`–`65535`。 |
+| `LAYA_DEMO_MODEL_DEFAULT` | `multilingual` | 传给 Laya Router 的默认模型。 |
+| `LAYA_DEMO_DEVICE` | 空（自动选择） | 留空时由 Laya/PyTorch 自动选择设备；也可按 Laya 支持的设备值显式指定。 |
+| `LAYA_DEMO_PRELOAD` | `false` | 是否在启动时预加载 Laya 模型；默认首次预测时再加载。 |
+
+操作系统环境变量优先于 `.env` 中的同名配置。例如，PowerShell 中设置 `$env:LAYA_DEMO_PORT = "6410"`，或在 macOS/Linux 中运行 `LAYA_DEMO_PORT=6410 uv run python main.py`，可临时覆盖文件值。`.env` 是本地文件，不会提交到 Git。
 
 ## 使用方式
 

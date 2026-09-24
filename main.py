@@ -1,7 +1,6 @@
 """FastAPI entry point for the local exam knowledge-point matching demo."""
 
 import logging
-import os
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +12,7 @@ from fastapi.templating import Jinja2Templates
 from laya import Router
 from pydantic import BaseModel
 
+from config import Settings
 from matching import normalize_inputs, predict_matches
 
 
@@ -20,6 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 TEMPLATES_DIR = BASE_DIR / "templates"
 logger = logging.getLogger(__name__)
+settings = Settings()
 
 app = FastAPI(title="考试题知识点匹配")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
@@ -27,7 +28,11 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 # Constructing Router does not load weights. The first prediction downloads and
 # loads only the checkpoint selected for that request.
-router = Router(default="multilingual", device=None, preload=False)
+router = Router(
+    default=settings.model_default,
+    device=settings.device,
+    preload=settings.preload,
+)
 
 
 class MatchRequest(BaseModel):
@@ -64,16 +69,8 @@ def match(payload: MatchRequest) -> dict[str, Any]:
 
 
 def main() -> None:
-    port_text = os.environ.get("LAYA_DEMO_PORT", "0")
-    try:
-        port = int(port_text)
-    except ValueError as exc:
-        raise SystemExit("LAYA_DEMO_PORT 必须是 0 到 65535 之间的整数。") from exc
-    if not 0 <= port <= 65535:
-        raise SystemExit("LAYA_DEMO_PORT 必须是 0 到 65535 之间的整数。")
-
     # Port 0 asks the OS for an available port, avoiding local reserved ports.
-    uvicorn.run(app, host="127.0.0.1", port=port)
+    uvicorn.run(app, host=settings.host, port=settings.port)
 
 
 if __name__ == "__main__":
