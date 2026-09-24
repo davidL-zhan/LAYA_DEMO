@@ -2,6 +2,8 @@
 
 在本地网页中输入一道考试题和若干知识点，让 Laya 分别判断解题是否需要每个知识点。结果按阈值显示“匹配 / 不匹配”和概率，同时可以展开查看 Laya 返回的原始结构化 JSON。
 
+项目在 Windows 和 Linux 上使用 PyTorch 2.14.0 的 CUDA 12.6 构建；macOS 使用 PyPI 上的 PyTorch 构建，不安装 CUDA（Apple Silicon 可由 PyTorch 使用 MPS）。
+
 ## 环境与启动
 
 需要 Python 3.13 或更高版本，以及 `uv`。在项目根目录运行：
@@ -38,6 +40,12 @@ LAYA_DEMO_PORT=6410 uv run python main.py
 服务启动时不会加载模型。首次提交预测时，Laya 才会从 Hugging Face 下载本次路由需要的 checkpoint；之后由 Hugging Face 缓存在本机复用。首次预测需要能访问 Hugging Face，耗时会比后续预测更长。
 
 应用使用 `Router(default="multilingual", device=None, preload=False)`。Laya 不是通用文本相似度/embedding 工具，而是对每个知识点提出一个 `noul` 是/否判断；Router 会在英文 ModernBERT checkpoint 和多语言 mmBERT checkpoint 间路由，中文通常使用多语言模型。`device=None` 交由 Laya/PyTorch 在 CUDA、Apple MPS、XPU 或 CPU 中选择可用设备。模型支持的语言和匹配效果仍应使用你的真实考试题目验证；概率是模型分数，不代表经过本项目数据校准的置信度。
+
+Windows/Linux 使用 CUDA 需要可用的 NVIDIA GPU 和兼容的驱动。可用下面的命令检查 PyTorch 是否检测到 CUDA：
+
+```shell
+uv run python -c "import torch; print(torch.__version__, torch.version.cuda, torch.cuda.is_available())"
+```
 
 ## 验证
 

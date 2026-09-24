@@ -5,7 +5,7 @@
 - `main.py` 是 FastAPI 应用入口，提供首页、`/api/match` 和本地启动函数 `main()`。
 - `matching.py` 负责清理题目/知识点输入、构造 Laya `noul` 判断并保留原始响应。
 - `templates/index.html` 是网页模板；`static/app.js` 和 `static/style.css` 分别负责交互与样式。
-- `pyproject.toml` 保存项目元数据、Python 版本要求（`>=3.13`）和 `laya[serve]==0.3.20` 依赖；`uv.lock` 锁定依赖版本。
+- `pyproject.toml` 保存项目元数据、Python 版本要求（`>=3.13`）、`laya[serve]==0.3.20` 和 `torch==2.14.0` 依赖；`uv.lock` 锁定依赖版本及平台对应的 PyTorch 构建。
 - `README.md` 说明 Windows/macOS 安装、启动、端口设置、模型下载和网页操作。
 - `.python-version` 将本地解释器版本系列指定为 Python 3.13。
 - `tests/` 使用 Python 标准库 `unittest` 检查输入清理、知识点映射和单次 Router 调用。
@@ -13,6 +13,8 @@
 ## 构建、测试与开发命令
 
 在 Windows 上使用 PowerShell 7，并采用 UTF-8 编码；macOS 可在终端使用相同的 `uv` 命令。
+
+Windows/Linux 从 PyTorch CUDA 12.6 索引安装 PyTorch；macOS 使用 PyPI 构建，不安装 CUDA。改动依赖后更新并检查 `uv.lock`，不要手工编辑锁文件。
 
 ```powershell
 uv sync --locked                         # 按锁文件安装项目及依赖
