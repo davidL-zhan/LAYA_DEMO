@@ -22,7 +22,7 @@
 
 采用 `pydantic-settings`：利用项目已有的 Pydantic 生态，将 `.env` 与系统环境变量解析为有类型的字段，并在启动时校验端口范围。相比手写 `python-dotenv`/`dataclass` 转换，可减少重复解析和校验逻辑。
 
-- `config.py` 定义 `Settings`，以代码文件所在的项目根目录定位 `.env`，使用 UTF-8；操作系统环境变量覆盖 `.env` 中的同名项。
+- `config.py` 定义 `Settings`，以代码文件所在的项目根目录定位 `.env`，使用 UTF-8；非空操作系统环境变量覆盖 `.env` 中的同名项，空值视为未提供。需要将设备显式恢复为自动选择时，设置 `LAYA_DEMO_DEVICE=none`。
 - `.env.example` 提供无密钥的默认配置模板；真实 `.env` 加入 `.gitignore`，由开发者从模板复制后本地编辑。
 - `main.py` 从 `Settings` 读取服务 host/port 和 Laya Router 参数，移除直接读取 `os.environ` 的分散逻辑。
 - `pyproject.toml` 声明 `pydantic-settings`，`uv.lock` 由 `uv lock` 更新。

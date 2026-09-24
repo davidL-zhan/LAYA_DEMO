@@ -26,8 +26,8 @@ app = FastAPI(title="考试题知识点匹配")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
-# Constructing Router does not load weights. The first prediction downloads and
-# loads only the checkpoint selected for that request.
+# Laya follows the configured preload policy; the default defers checkpoint
+# loading until the first prediction.
 router = Router(
     default=settings.model_default,
     device=settings.device,

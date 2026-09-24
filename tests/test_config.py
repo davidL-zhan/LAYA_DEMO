@@ -20,6 +20,14 @@ class SettingsTests(unittest.TestCase):
         self.assertIsNone(settings.device)
         self.assertFalse(settings.preload)
 
+    def test_readme_describes_configurable_preloading(self):
+        readme = Path(__file__).resolve().parents[1] / "README.md"
+        content = readme.read_text(encoding="utf-8")
+
+        self.assertIn("默认 `LAYA_DEMO_PRELOAD=false`", content)
+        self.assertIn("`LAYA_DEMO_PRELOAD=true`", content)
+        self.assertIn("Router 参数由 `config.py`", content)
+
     def test_reads_dotenv_values_and_uses_auto_device_when_empty(self):
         with tempfile.TemporaryDirectory() as directory:
             env_file = Path(directory) / ".env"
@@ -51,6 +59,26 @@ class SettingsTests(unittest.TestCase):
                 settings = Settings(_env_file=env_file)
 
         self.assertEqual(settings.port, 6420)
+
+    def test_empty_process_device_is_ignored_in_favor_of_dotenv(self):
+        with tempfile.TemporaryDirectory() as directory:
+            env_file = Path(directory) / ".env"
+            env_file.write_text("LAYA_DEMO_DEVICE=cuda:0\n", encoding="utf-8")
+            with patch.dict(os.environ, {"LAYA_DEMO_DEVICE": ""}, clear=True):
+                settings = Settings(_env_file=env_file)
+
+        self.assertEqual(settings.device, "cuda:0")
+
+    def test_literal_none_environment_device_uses_auto_selection(self):
+        with tempfile.TemporaryDirectory() as directory:
+            env_file = Path(directory) / ".env"
+            env_file.write_text("LAYA_DEMO_DEVICE=cuda:0\n", encoding="utf-8")
+            with patch.dict(
+                os.environ, {"LAYA_DEMO_DEVICE": "none"}, clear=True
+            ):
+                settings = Settings(_env_file=env_file)
+
+        self.assertIsNone(settings.device)
 
     def test_accepts_port_boundaries(self):
         with patch.dict(os.environ, {}, clear=True):

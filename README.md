@@ -37,7 +37,7 @@ cp .env.example .env
 | `LAYA_DEMO_DEVICE` | 空（自动选择） | 留空时由 Laya/PyTorch 自动选择设备；也可按 Laya 支持的设备值显式指定。 |
 | `LAYA_DEMO_PRELOAD` | `false` | 是否在启动时预加载 Laya 模型；默认首次预测时再加载。 |
 
-操作系统环境变量优先于 `.env` 中的同名配置。例如，PowerShell 中设置 `$env:LAYA_DEMO_PORT = "6410"`，或在 macOS/Linux 中运行 `LAYA_DEMO_PORT=6410 uv run python main.py`，可临时覆盖文件值。`.env` 是本地文件，不会提交到 Git。
+同名非空操作系统环境变量优先于 `.env` 中的配置；空环境变量会被忽略。例如，PowerShell 中设置 `$env:LAYA_DEMO_PORT = "6410"`，或在 macOS/Linux 中运行 `LAYA_DEMO_PORT=6410 uv run python main.py`，可临时覆盖文件值。若要用自动设备选择覆盖 `.env` 中的设备值，请将 `LAYA_DEMO_DEVICE` 设为 `none`。`.env` 是本地文件，不会提交到 Git。
 
 ## 使用方式
 
@@ -48,9 +48,9 @@ cp .env.example .env
 
 ## 模型下载与设备
 
-服务启动时不会加载模型。首次提交预测时，Laya 才会从 Hugging Face 下载本次路由需要的 checkpoint；之后由 Hugging Face 缓存在本机复用。首次预测需要能访问 Hugging Face，耗时会比后续预测更长。
+默认 `LAYA_DEMO_PRELOAD=false` 时，服务启动不会加载模型。首次提交预测时，Laya 才会从 Hugging Face 下载本次路由需要的 checkpoint；之后由 Hugging Face 缓存在本机复用。首次预测需要能访问 Hugging Face，耗时会比后续预测更长。若设置 `LAYA_DEMO_PRELOAD=true`，Laya 会按 Router 的预加载设置在启动阶段加载模型。
 
-应用使用 `Router(default="multilingual", device=None, preload=False)`。Laya 不是通用文本相似度/embedding 工具，而是对每个知识点提出一个 `noul` 是/否判断；Router 会在英文 ModernBERT checkpoint 和多语言 mmBERT checkpoint 间路由，中文通常使用多语言模型。`device=None` 交由 Laya/PyTorch 在 CUDA、Apple MPS、XPU 或 CPU 中选择可用设备。模型支持的语言和匹配效果仍应使用你的真实考试题目验证；概率是模型分数，不代表经过本项目数据校准的置信度。
+Router 参数由 `config.py` 从 `.env` 和操作系统环境变量读取；默认等效于 `Router(default="multilingual", device=None, preload=False)`。`LAYA_DEMO_DEVICE` 留空或设为 `none` 时由 Laya/PyTorch 自动选择可用设备。Laya 不是通用文本相似度/embedding 工具，而是对每个知识点提出一个 `noul` 是/否判断；Router 会在英文 ModernBERT checkpoint 和多语言 mmBERT checkpoint 间路由，中文通常使用多语言模型。模型支持的语言和匹配效果仍应使用你的真实考试题目验证；概率是模型分数，不代表经过本项目数据校准的置信度。
 
 Windows/Linux 使用 CUDA 需要可用的 NVIDIA GPU 和兼容的驱动。可用下面的命令检查 PyTorch 是否检测到 CUDA：
 

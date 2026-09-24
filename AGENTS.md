@@ -25,7 +25,7 @@ uv run python -X utf8 -m py_compile config.py main.py matching.py  # 检查 Pyth
 node --check static/app.js               # 可选：检查网页脚本语法
 ```
 
-启动后使用 Uvicorn 日志显示的访问地址。服务和 Laya 设置使用 `LAYA_DEMO_` 前缀，可写在项目根目录 UTF-8 编码的 `.env` 中；操作系统环境变量优先于文件值。新增依赖应写入 `pyproject.toml` 并更新 `uv.lock`。
+启动后使用 Uvicorn 日志显示的访问地址。服务和 Laya 设置使用 `LAYA_DEMO_` 前缀，可写在项目根目录 UTF-8 编码的 `.env` 中；非空操作系统环境变量优先，空值会忽略。`LAYA_DEMO_DEVICE` 留空或设为 `none` 表示自动选择设备；需用自动选择覆盖 `.env` 时显式设为 `none`。新增依赖应写入 `pyproject.toml` 并更新 `uv.lock`。
 
 ## 编码风格与命名约定
 
@@ -33,7 +33,7 @@ node --check static/app.js               # 可选：检查网页脚本语法
 
 ## 测试规范
 
-测试使用 Python 标准库 `unittest`，文件名为 `tests/test_*.py`，聚焦可观察行为；配置测试覆盖 `.env`、环境变量优先级和端口范围。修改后运行上面的完整单元测试命令，并在变更说明中报告命令和结果；网页交互变化还应检查桌面/窄屏布局、文本安全和错误恢复。
+测试使用 Python 标准库 `unittest`，文件名为 `tests/test_*.py`，聚焦可观察行为；配置测试覆盖 `.env`、环境变量优先级、自动设备选择和端口范围。修改后运行上面的完整单元测试命令，并在变更说明中报告命令和结果；网页交互变化还应检查桌面/窄屏布局、文本安全和错误恢复。
 
 ## 提交与拉取请求规范
 

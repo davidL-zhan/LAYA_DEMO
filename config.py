@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,3 +21,10 @@ class Settings(BaseSettings):
     model_default: str = "multilingual"
     device: str | None = None
     preload: bool = False
+
+    @field_validator("device", mode="before")
+    @classmethod
+    def auto_device_marker_means_none(cls, value: object) -> object:
+        if isinstance(value, str) and value.strip().lower() in {"", "none"}:
+            return None
+        return value
