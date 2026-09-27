@@ -16,5 +16,5 @@ wheels/
 
 # Documentation
 docs/
-
+.vscode/
 AGENTS.md
