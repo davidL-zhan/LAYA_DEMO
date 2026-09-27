@@ -1,3 +1,5 @@
+"""验证配置默认值、环境变量优先级和 .env 解析行为。"""
+
 import os
 import tempfile
 import unittest
@@ -10,7 +12,10 @@ from config import Settings
 
 
 class SettingsTests(unittest.TestCase):
+    """配置行为测试；读取配置的用例显式隔离进程环境。"""
+
     def test_defaults_match_current_demo_behavior(self):
+        """未提供配置时，应保持 Demo 约定的默认值。"""
         with patch.dict(os.environ, {}, clear=True):
             settings = Settings(_env_file=None)
 
@@ -21,6 +26,7 @@ class SettingsTests(unittest.TestCase):
         self.assertFalse(settings.preload)
 
     def test_readme_describes_configurable_preloading(self):
+        """README 应说明可配置的预加载开关，避免文档与配置脱节。"""
         readme = Path(__file__).resolve().parents[1] / "README.md"
         content = readme.read_text(encoding="utf-8")
 
@@ -29,6 +35,7 @@ class SettingsTests(unittest.TestCase):
         self.assertIn("Router 参数由 `config.py`", content)
 
     def test_reads_dotenv_values_and_uses_auto_device_when_empty(self):
+        """从 UTF-8 .env 读取设置，并将空设备值解释为自动选择。"""
         with tempfile.TemporaryDirectory() as directory:
             env_file = Path(directory) / ".env"
             env_file.write_text(
@@ -50,6 +57,7 @@ class SettingsTests(unittest.TestCase):
         self.assertTrue(settings.preload)
 
     def test_process_environment_overrides_dotenv(self):
+        """同一设置同时出现在进程环境和 .env 时，进程环境优先。"""
         with tempfile.TemporaryDirectory() as directory:
             env_file = Path(directory) / ".env"
             env_file.write_text("LAYA_DEMO_PORT=6410\n", encoding="utf-8")
@@ -61,6 +69,7 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(settings.port, 6420)
 
     def test_empty_process_device_is_ignored_in_favor_of_dotenv(self):
+        """空进程变量不应覆盖 .env 中明确指定的设备。"""
         with tempfile.TemporaryDirectory() as directory:
             env_file = Path(directory) / ".env"
             env_file.write_text("LAYA_DEMO_DEVICE=cuda:0\n", encoding="utf-8")
@@ -70,6 +79,7 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(settings.device, "cuda:0")
 
     def test_literal_none_environment_device_uses_auto_selection(self):
+        """显式配置文本 none 时，应恢复 Laya 自动设备选择。"""
         with tempfile.TemporaryDirectory() as directory:
             env_file = Path(directory) / ".env"
             env_file.write_text("LAYA_DEMO_DEVICE=cuda:0\n", encoding="utf-8")
@@ -81,11 +91,13 @@ class SettingsTests(unittest.TestCase):
         self.assertIsNone(settings.device)
 
     def test_accepts_port_boundaries(self):
+        """接受端口范围两端：0（自动分配）以及标准上限 65535。"""
         with patch.dict(os.environ, {}, clear=True):
             self.assertEqual(Settings(_env_file=None, port=0).port, 0)
             self.assertEqual(Settings(_env_file=None, port=65535).port, 65535)
 
     def test_rejects_port_outside_range(self):
+        """拒绝超出 TCP/UDP 端口范围的值。"""
         with patch.dict(os.environ, {}, clear=True):
             for port in (-1, 65536):
                 with self.subTest(port=port):
